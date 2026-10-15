@@ -1,0 +1,1449 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>A Special Question for You 💕</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,600;0,700;0,800;1,600&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Outfit:wght@400;600;700&display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.3/dist/confetti.browser.min.js"></script>
+  <style>
+    :root {
+      --bg-gradient: radial-gradient(circle at 20% 20%, #ffeef2 0%, #ffd6e0 45%, #fedbe2 100%);
+      --card-bg: rgba(255, 255, 255, 0.94);
+      --card-border: rgba(255, 215, 225, 0.8);
+      --primary: #e02871;
+      --primary-hover: #c4185c;
+      --primary-gradient: linear-gradient(135deg, #f73879 0%, #d81b60 100%);
+      --accent-glow: rgba(224, 40, 113, 0.28);
+      --text-main: #3d232c;
+      --text-muted: #87626d;
+      --badge-bg: #fff1f5;
+      --input-bg: #fff8fa;
+      --card-shadow: 0 25px 60px -15px rgba(214, 51, 132, 0.22), 0 0 0 1px rgba(255, 255, 255, 0.7);
+    }
+
+    [data-theme="lavender"] {
+      --bg-gradient: radial-gradient(circle at 20% 20%, #f4f0ff 0%, #e5ddfc 50%, #d6cbfa 100%);
+      --primary: #7c4dff;
+      --primary-hover: #651fff;
+      --primary-gradient: linear-gradient(135deg, #8c5aff 0%, #6200ea 100%);
+      --accent-glow: rgba(124, 77, 255, 0.28);
+      --text-main: #2b223d;
+      --text-muted: #6e6485;
+      --badge-bg: #f5f0ff;
+      --input-bg: #faf7ff;
+      --card-shadow: 0 25px 60px -15px rgba(124, 77, 255, 0.22), 0 0 0 1px rgba(255, 255, 255, 0.7);
+    }
+
+    [data-theme="sunset"] {
+      --bg-gradient: radial-gradient(circle at 20% 20%, #fff4e6 0%, #ffe0cc 50%, #ffd1b3 100%);
+      --primary: #ff6d00;
+      --primary-hover: #e65100;
+      --primary-gradient: linear-gradient(135deg, #ff7a18 0%, #e65100 100%);
+      --accent-glow: rgba(255, 109, 0, 0.28);
+      --text-main: #3e2617;
+      --text-muted: #82604d;
+      --badge-bg: #fff7f0;
+      --input-bg: #fff9f5;
+      --card-shadow: 0 25px 60px -15px rgba(255, 109, 0, 0.22), 0 0 0 1px rgba(255, 255, 255, 0.7);
+    }
+
+    [data-theme="midnight"] {
+      --bg-gradient: radial-gradient(circle at 20% 20%, #1a1226 0%, #0d0914 60%, #050308 100%);
+      --card-bg: rgba(26, 20, 36, 0.92);
+      --card-border: rgba(255, 77, 141, 0.3);
+      --primary: #ff3377;
+      --primary-hover: #ff1a66;
+      --primary-gradient: linear-gradient(135deg, #ff4081 0%, #c51162 100%);
+      --accent-glow: rgba(255, 64, 129, 0.4);
+      --text-main: #fdf2f7;
+      --text-muted: #b9a2b5;
+      --badge-bg: #281a33;
+      --input-bg: #22172b;
+      --card-shadow: 0 25px 60px -10px rgba(255, 51, 119, 0.3), 0 0 0 1px rgba(255, 77, 141, 0.25);
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      user-select: none;
+      -webkit-user-select: none;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    body {
+      background: var(--bg-gradient);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      color: var(--text-main);
+      overflow-x: hidden;
+      position: relative;
+      padding: 24px 16px;
+      transition: background 0.5s ease;
+    }
+
+    /* Floating Animated Canvas */
+    #ambientCanvas {
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      z-index: 1;
+    }
+
+    /* Top Settings / Theme & Music Bar */
+    .top-controls {
+      position: fixed;
+      top: 16px;
+      right: 18px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      z-index: 999;
+    }
+
+    .icon-btn {
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      color: var(--text-main);
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 17px;
+      cursor: pointer;
+      box-shadow: 0 6px 16px rgba(0,0,0,0.06);
+      transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+      backdrop-filter: blur(8px);
+    }
+
+    .icon-btn:hover {
+      transform: scale(1.08);
+      box-shadow: 0 8px 20px rgba(0,0,0,0.12);
+    }
+
+    .icon-btn.active {
+      background: var(--primary);
+      color: #fff;
+      border-color: transparent;
+    }
+
+    /* Customizer Drawer Modal */
+    .drawer-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.5);
+      backdrop-filter: blur(6px);
+      z-index: 10000;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 16px;
+    }
+
+    .drawer-overlay.active {
+      display: flex;
+    }
+
+    .drawer-card {
+      background: #ffffff;
+      border-radius: 26px;
+      width: 100%;
+      max-width: 460px;
+      max-height: 88vh;
+      overflow-y: auto;
+      padding: 28px;
+      box-shadow: 0 30px 70px rgba(0,0,0,0.25);
+      animation: popIn 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+      color: #33222a;
+    }
+
+    .drawer-card h3 {
+      font-family: 'Playfair Display', serif;
+      font-size: 22px;
+      margin-bottom: 6px;
+      color: #b81755;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .drawer-subtitle {
+      font-size: 13px;
+      color: #7d656e;
+      margin-bottom: 20px;
+    }
+
+    .drawer-section {
+      margin-bottom: 18px;
+      text-align: left;
+    }
+
+    .drawer-section label {
+      display: block;
+      font-size: 12px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      color: #5c3b47;
+      margin-bottom: 6px;
+    }
+
+    .drawer-input {
+      width: 100%;
+      padding: 10px 14px;
+      border: 1.5px solid #ecd6dd;
+      border-radius: 12px;
+      font-family: inherit;
+      font-size: 14px;
+      background: #fffbfa;
+      color: #3d232c;
+      outline: none;
+    }
+
+    .drawer-input:focus {
+      border-color: #d81b60;
+    }
+
+    .theme-swatches {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 8px;
+    }
+
+    .theme-chip {
+      padding: 9px 6px;
+      border-radius: 12px;
+      border: 2px solid transparent;
+      font-size: 12px;
+      font-weight: 700;
+      cursor: pointer;
+      text-align: center;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 4px;
+      transition: all 0.2s;
+    }
+
+    .theme-chip.selected {
+      border-color: #222;
+      transform: scale(1.03);
+    }
+
+    /* Main Center Card */
+    .card {
+      background: var(--card-bg);
+      width: 100%;
+      max-width: 460px;
+      min-height: 440px;
+      border-radius: 32px;
+      padding: 38px 30px 34px;
+      box-shadow: var(--card-shadow);
+      border: 1px solid var(--card-border);
+      backdrop-filter: blur(16px);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      position: relative;
+      transition: all 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+      z-index: 10;
+    }
+
+    /* Progress indicator bar */
+    .progress-bar-wrap {
+      position: absolute;
+      top: 16px;
+      left: 32px;
+      right: 32px;
+      height: 4px;
+      background: rgba(0, 0, 0, 0.05);
+      border-radius: 9999px;
+      overflow: hidden;
+    }
+
+    .progress-fill {
+      height: 100%;
+      background: var(--primary-gradient);
+      width: 14%;
+      border-radius: 9999px;
+      transition: width 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    .step-view {
+      width: 100%;
+      display: none;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    .step-view.active {
+      display: flex;
+      animation: popIn 0.35s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+    }
+
+    @keyframes popIn {
+      from {
+        opacity: 0;
+        transform: scale(0.95) translateY(10px);
+      }
+      to {
+        opacity: 1;
+        transform: scale(1) translateY(0);
+      }
+    }
+
+    /* Avatar Container */
+    .avatar-wrapper {
+      position: relative;
+      width: 96px;
+      height: 96px;
+      border-radius: 26px;
+      margin-bottom: 22px;
+      box-shadow: 0 10px 24px rgba(0, 0, 0, 0.1);
+      padding: 4px;
+      background: linear-gradient(135deg, rgba(255,255,255,0.9), rgba(255,215,225,0.4));
+      border: 1px solid rgba(255,255,255,0.8);
+      cursor: pointer;
+      transition: transform 0.2s ease;
+    }
+
+    .avatar-wrapper:hover {
+      transform: scale(1.05) rotate(2deg);
+    }
+
+    .avatar-img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      border-radius: 22px;
+    }
+
+    .avatar-badge {
+      position: absolute;
+      bottom: -4px;
+      right: -4px;
+      background: #ffffff;
+      border-radius: 50%;
+      width: 28px;
+      height: 28px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 15px;
+      box-shadow: 0 3px 8px rgba(0,0,0,0.15);
+    }
+
+    .emoji-box-large {
+      width: 90px;
+      height: 90px;
+      border-radius: 26px;
+      background: linear-gradient(135deg, #ff3366, #ff6b8b);
+      color: #fff;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 52px;
+      margin-bottom: 20px;
+      box-shadow: 0 12px 28px rgba(255, 51, 102, 0.35);
+      animation: pulseBounce 2.5s infinite ease-in-out;
+    }
+
+    @keyframes pulseBounce {
+      0%, 100% { transform: translateY(0) scale(1); }
+      50% { transform: translateY(-6px) scale(1.03); }
+    }
+
+    /* Typography */
+    h1, h2 {
+      font-family: 'Playfair Display', Georgia, serif;
+      font-size: 26px;
+      font-weight: 700;
+      color: var(--text-main);
+      line-height: 1.35;
+      margin-bottom: 12px;
+    }
+
+    .subtitle {
+      font-size: 14px;
+      color: var(--text-muted);
+      margin-bottom: 24px;
+      line-height: 1.5;
+      font-weight: 500;
+    }
+
+    /* Buttons */
+    .btn-primary {
+      background: var(--primary-gradient);
+      color: white;
+      border: none;
+      padding: 14px 38px;
+      font-size: 15px;
+      font-weight: 700;
+      border-radius: 9999px;
+      cursor: pointer;
+      box-shadow: 0 10px 24px var(--accent-glow);
+      transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      text-decoration: none;
+      outline: none;
+    }
+
+    .btn-primary:hover {
+      transform: translateY(-2px) scale(1.02);
+      box-shadow: 0 14px 30px var(--accent-glow);
+    }
+
+    .btn-primary:active {
+      transform: translateY(1px) scale(0.98);
+    }
+
+    .btn-secondary {
+      background: rgba(0, 0, 0, 0.05);
+      color: var(--text-main);
+      border: none;
+      padding: 10px 20px;
+      font-size: 13px;
+      font-weight: 600;
+      border-radius: 9999px;
+      cursor: pointer;
+      margin-top: 12px;
+      transition: all 0.2s;
+    }
+
+    .btn-secondary:hover {
+      background: rgba(0, 0, 0, 0.09);
+    }
+
+    /* Step 1: Dodging NO button */
+    .step-1-btn-area {
+      position: relative;
+      width: 100%;
+      height: 70px;
+      margin-top: 8px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+
+    #yesBtn {
+      position: relative;
+      z-index: 2;
+      padding: 16px 48px;
+      font-size: 17px;
+    }
+
+    #noBtn {
+      position: fixed;
+      background: #c3a8d1;
+      color: #ffffff;
+      border: none;
+      padding: 10px 22px;
+      border-radius: 9999px;
+      font-size: 13.5px;
+      font-weight: 700;
+      cursor: pointer;
+      box-shadow: 0 6px 14px rgba(160, 130, 170, 0.3);
+      transition: left 0.16s ease-out, top 0.16s ease-out, transform 0.12s ease;
+      z-index: 999;
+      white-space: nowrap;
+    }
+
+    /* Form Fields */
+    .form-group {
+      width: 100%;
+      text-align: left;
+      margin-bottom: 16px;
+    }
+
+    .form-label {
+      display: block;
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--text-main);
+      margin-bottom: 7px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .form-input, .form-select {
+      width: 100%;
+      padding: 12px 16px;
+      border: 1.5px solid rgba(0, 0, 0, 0.08);
+      border-radius: 14px;
+      font-family: inherit;
+      font-size: 14.5px;
+      color: var(--text-main);
+      background: var(--input-bg);
+      outline: none;
+      transition: all 0.2s;
+    }
+
+    .form-input:focus, .form-select:focus {
+      border-color: var(--primary);
+      box-shadow: 0 0 0 3px var(--accent-glow);
+    }
+
+    /* Grid Selectors (Food & Activity) */
+    .selection-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 10px;
+      width: 100%;
+      margin-bottom: 24px;
+    }
+
+    .grid-item {
+      background: var(--input-bg);
+      border: 1.5px solid rgba(0,0,0,0.06);
+      border-radius: 18px;
+      padding: 14px 6px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: all 0.22s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    .grid-item:hover {
+      transform: translateY(-3px);
+      border-color: var(--primary);
+    }
+
+    .grid-item.selected {
+      border: 2px solid var(--primary);
+      background: var(--badge-bg);
+      box-shadow: 0 6px 18px var(--accent-glow);
+      transform: scale(1.03);
+    }
+
+    .grid-item-icon {
+      font-size: 32px;
+      margin-bottom: 6px;
+      display: block;
+    }
+
+    .grid-item-label {
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--text-main);
+    }
+
+    /* Note Box in Confirmation */
+    .note-card {
+      background: var(--badge-bg);
+      border-radius: 18px;
+      padding: 18px 20px;
+      margin: 12px 0 24px;
+      line-height: 1.6;
+      font-size: 13.5px;
+      color: var(--text-muted);
+      border: 1px dashed var(--card-border);
+    }
+
+    .note-card strong {
+      color: var(--text-main);
+    }
+
+    .hearts-row {
+      color: var(--primary);
+      letter-spacing: 5px;
+      font-size: 16px;
+      margin-top: 8px;
+    }
+
+    /* Step 7: The Invoice Plot Twist */
+    .bill-card {
+      width: 100%;
+      background: var(--badge-bg);
+      border: 2px dashed var(--primary);
+      border-radius: 20px;
+      padding: 20px 22px;
+      margin: 14px 0 24px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      text-align: left;
+    }
+
+    .bill-left h4 {
+      font-size: 16px;
+      font-weight: 800;
+      color: var(--text-main);
+      margin-bottom: 4px;
+    }
+
+    .bill-left p {
+      font-size: 12px;
+      color: var(--text-muted);
+    }
+
+    .bill-price {
+      font-family: 'Playfair Display', serif;
+      font-size: 28px;
+      font-weight: 800;
+      color: var(--primary);
+      letter-spacing: -0.5px;
+    }
+
+    /* Summary Receipt List in Modal */
+    .receipt-list {
+      background: #fff5f8;
+      border-radius: 16px;
+      padding: 16px;
+      margin: 18px 0;
+      text-align: left;
+      font-size: 13.5px;
+      line-height: 1.8;
+      border: 1px solid #ffd6e2;
+    }
+
+    .receipt-row {
+      display: flex;
+      justify-content: space-between;
+      border-bottom: 1px dashed #ffd0dd;
+      padding-bottom: 4px;
+      margin-bottom: 4px;
+    }
+
+    .receipt-row:last-child {
+      border-bottom: none;
+      padding-bottom: 0;
+      margin-bottom: 0;
+    }
+
+    /* Watermark / Footer */
+    .footer-watermark {
+      margin-top: 24px;
+      font-size: 12px;
+      color: var(--text-muted);
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      z-index: 10;
+    }
+
+    .footer-watermark a {
+      color: var(--primary);
+      text-decoration: none;
+      font-weight: 700;
+      cursor: pointer;
+    }
+
+    /* Modal Styling */
+    .modal-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.55);
+      backdrop-filter: blur(8px);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 10000;
+      padding: 20px;
+    }
+
+    .modal-overlay.active {
+      display: flex;
+    }
+
+    .modal-box {
+      background: #ffffff;
+      padding: 34px 28px;
+      border-radius: 28px;
+      max-width: 420px;
+      width: 100%;
+      text-align: center;
+      box-shadow: 0 30px 80px rgba(0,0,0,0.3);
+      animation: popIn 0.28s cubic-bezier(0.16, 1, 0.3, 1);
+      color: #33222a;
+    }
+
+    .modal-box h2 {
+      font-size: 24px;
+      color: #d81b60;
+      margin-bottom: 10px;
+    }
+
+    .badge-paid {
+      display: inline-block;
+      background: #e8f5e9;
+      color: #2e7d32;
+      font-weight: 800;
+      font-size: 12px;
+      padding: 4px 14px;
+      border-radius: 9999px;
+      margin-bottom: 12px;
+      letter-spacing: 0.5px;
+    }
+  </style>
+</head>
+<body data-theme="pink">
+
+  <!-- Ambient floating particle canvas -->
+  <canvas id="ambientCanvas"></canvas>
+
+  <!-- Top action controls: Theme Switcher, Music, Settings -->
+  <header class="top-controls">
+    <button class="icon-btn" id="musicToggleBtn" title="Play romantic background music" aria-label="Toggle Music">🎵</button>
+    <button class="icon-btn" id="themeCycleBtn" title="Switch color theme" aria-label="Switch Theme">🎨</button>
+    <button class="icon-btn" id="openCustomizerBtn" title="Customize names, fee, text & avatar" aria-label="Open Customizer">⚙️</button>
+  </header>
+
+  <!-- The Main Card Presentation -->
+  <main class="card" id="mainCard">
+
+    <!-- Step Progress Bar -->
+    <div class="progress-bar-wrap">
+      <div class="progress-fill" id="progressBar"></div>
+    </div>
+
+    <!-- STEP 1: The Big Question -->
+    <section class="step-view active" id="step1">
+      <div class="avatar-wrapper" id="avatarClickable" title="Click to change avatar!">
+        <img src="pug.png" alt="Avatar" class="avatar-img" id="displayAvatar" onerror="this.src='data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🐶</text></svg>'">
+        <span class="avatar-badge">💖</span>
+      </div>
+      
+      <h1 id="headlineStep1">🌸 Will you go on a date with me? 🌸</h1>
+      <p class="subtitle" id="subStep1">I promise good food, laughs, and zero awkward silences.</p>
+      
+      <div class="step-1-btn-area">
+        <button class="btn-primary" id="yesBtn">YES ♥</button>
+      </div>
+    </section>
+
+    <!-- STEP 2: The Shock Reaction -->
+    <section class="step-view" id="step2">
+      <div class="emoji-box-large">🧽</div>
+      <h1 id="headlineStep2">WAIT YOU ACTUALLY SAID YES?? 😭</h1>
+      <p class="subtitle" id="subStep2">I literally had a 10-slide PowerPoint prepared for rejection recovery.</p>
+      <button class="btn-primary" id="step2Btn">okay okay, let's plan it! →</button>
+    </section>
+
+    <!-- STEP 3: Date & Time Picker -->
+    <section class="step-view" id="step3">
+      <div class="emoji-box-large" style="background: linear-gradient(135deg, #ff7043, #ff5722);">📅</div>
+      <h1>So... when are you free?</h1>
+      <p class="subtitle">Pick a slot so I can officially clear my calendar 🐾</p>
+      
+      <div class="form-group">
+        <label class="form-label" for="datePicker"><span>📅</span> Pick a Day</label>
+        <input type="date" id="datePicker" class="form-input">
+      </div>
+
+      <div class="form-group">
+        <label class="form-label" for="timePicker"><span>⏰</span> What Time?</label>
+        <select id="timePicker" class="form-select">
+          <option value="12:00 PM">12:00 PM (Lunch)</option>
+          <option value="1:30 PM">1:30 PM (Afternoon coffee)</option>
+          <option value="4:00 PM">4:00 PM (Sunset walk)</option>
+          <option value="6:00 PM">6:00 PM (Early dinner)</option>
+          <option value="6:30 PM" selected>6:30 PM (Prime Dinner Time ✨)</option>
+          <option value="7:00 PM">7:00 PM (Dinner & vibes)</option>
+          <option value="7:30 PM">7:30 PM (Evening dinner)</option>
+          <option value="8:30 PM">8:30 PM (Late night dessert)</option>
+        </select>
+      </div>
+
+      <button class="btn-primary" id="step3Btn">Lock in the time ♥</button>
+    </section>
+
+    <!-- STEP 4: Food Vibes Selection -->
+    <section class="step-view" id="step4">
+      <h1>What are we eating? 🍽️</h1>
+      <p class="subtitle">Pick your craving (no "I don't know, whatever you want" allowed 😆)</p>
+
+      <div class="selection-grid" id="foodGrid">
+        <div class="grid-item" data-val="Pizza">
+          <span class="grid-item-icon">🍕</span>
+          <span class="grid-item-label">Pizza</span>
+        </div>
+        <div class="grid-item" data-val="Sushi">
+          <span class="grid-item-icon">🍣</span>
+          <span class="grid-item-label">Sushi</span>
+        </div>
+        <div class="grid-item" data-val="Burgers">
+          <span class="grid-item-icon">🍔</span>
+          <span class="grid-item-label">Burgers</span>
+        </div>
+        <div class="grid-item" data-val="Pasta">
+          <span class="grid-item-icon">🍝</span>
+          <span class="grid-item-label">Italian</span>
+        </div>
+        <div class="grid-item selected" data-val="Tacos">
+          <span class="grid-item-icon">🌮</span>
+          <span class="grid-item-label">Tacos</span>
+        </div>
+        <div class="grid-item" data-val="Ramen">
+          <span class="grid-item-icon">🍜</span>
+          <span class="grid-item-label">Ramen</span>
+        </div>
+      </div>
+
+      <button class="btn-primary" id="step4Btn">Next: Pick an Activity →</button>
+    </section>
+
+    <!-- STEP 5: Bonus Activity Selection -->
+    <section class="step-view" id="step5">
+      <h1>After food, what's the plan? ✨</h1>
+      <p class="subtitle">Pick what sounds most fun for our date</p>
+
+      <div class="selection-grid" id="activityGrid">
+        <div class="grid-item selected" data-val="Stargazing">
+          <span class="grid-item-icon">✨</span>
+          <span class="grid-item-label">Stargazing</span>
+        </div>
+        <div class="grid-item" data-val="Arcade & Games">
+          <span class="grid-item-icon">🕹️</span>
+          <span class="grid-item-label">Arcade</span>
+        </div>
+        <div class="grid-item" data-val="Dessert & Walk">
+          <span class="grid-item-icon">🍦</span>
+          <span class="grid-item-label">Ice Cream</span>
+        </div>
+        <div class="grid-item" data-val="Bowling">
+          <span class="grid-item-icon">🎳</span>
+          <span class="grid-item-label">Bowling</span>
+        </div>
+        <div class="grid-item" data-val="Cinema / Movie">
+          <span class="grid-item-icon">🎬</span>
+          <span class="grid-item-label">Movie</span>
+        </div>
+        <div class="grid-item" data-val="Coffee & Chat">
+          <span class="grid-item-icon">☕</span>
+          <span class="grid-item-label">Cozy Cafe</span>
+        </div>
+      </div>
+
+      <button class="btn-primary" id="step5Btn">Almost done →</button>
+    </section>
+
+    <!-- STEP 6: Confirmation & Cute Message -->
+    <section class="step-view" id="step6">
+      <div class="emoji-box-large" style="background: linear-gradient(135deg, #10b981, #059669);">🚗</div>
+      <h1 id="headlineStep6">glad you didn't say no. be ready, I'm coming to pick you up!</h1>
+      
+      <div class="note-card" id="noteCardStep6">
+        <p><strong>P.S.</strong> Normal people text. I coded a customized website with confetti, soundtracks, and interactive buttons just for you. No big deal.</p>
+        <div class="hearts-row">♥ ♥ ♥ ♥ ♥</div>
+      </div>
+
+      <button class="btn-primary" id="step6Btn">ok I accept 🤝</button>
+    </section>
+
+    <!-- STEP 7: The Hilarious Plot Twist (Fee Invoice) -->
+    <section class="step-view" id="step7">
+      <div class="emoji-box-large" style="background: linear-gradient(135deg, #ec4899, #8b5cf6);">💳</div>
+      <h1>one small fee</h1>
+      <p class="subtitle">to confirm your acceptance of this date, please complete the following transaction. totally normal. everyone does this.</p>
+
+      <div class="bill-card">
+        <div class="bill-left">
+          <h4 id="billTitle">Date Agreement™</h4>
+          <p id="billSubtitle">one-time fee • non-refundable • absolutely worth it</p>
+        </div>
+        <div class="bill-price" id="billPriceDisplay">$499</div>
+      </div>
+
+      <button class="btn-primary" id="payBtn">pay & confirm 💝</button>
+      <button class="btn-secondary" id="goBackBtn">← go back</button>
+    </section>
+
+  </main>
+
+  <!-- The Runaway NO Button -->
+  <button id="noBtn">no 🐾</button>
+
+  <footer class="footer-watermark">
+    <span>built with love •</span>
+    <a id="editLink">Customize this page ⚙️</a>
+  </footer>
+
+  <!-- Receipt / Success Modal -->
+  <div class="modal-overlay" id="payModal">
+    <div class="modal-box">
+      <div class="badge-paid">✓ TRANSACTION APPROVED</div>
+      <h2>It's Official! 🥳🥂</h2>
+      <p>Your date slot has been permanently etched in stone.</p>
+      
+      <div class="receipt-list">
+        <div class="receipt-row">
+          <span>Date:</span>
+          <strong id="recDate">Tomorrow</strong>
+        </div>
+        <div class="receipt-row">
+          <span>Time:</span>
+          <strong id="recTime">6:30 PM</strong>
+        </div>
+        <div class="receipt-row">
+          <span>Food Vibe:</span>
+          <strong id="recFood">Tacos</strong>
+        </div>
+        <div class="receipt-row">
+          <span>Activity:</span>
+          <strong id="recActivity">Stargazing</strong>
+        </div>
+        <div class="receipt-row">
+          <span>Fee Charged:</span>
+          <strong id="recFee" style="color: #d81b60;">$499.00</strong>
+        </div>
+      </div>
+
+      <p style="font-size: 13px; color: #7d656e; margin-bottom: 20px;">
+        Receipt forwarded to your heart. Get dressed, look cute, see you soon! 🥰
+      </p>
+
+      <button class="btn-primary" onclick="closeModal()">Can't Wait! 💖</button>
+    </div>
+  </div>
+
+  <!-- Realtime In-Browser Customizer Drawer -->
+  <div class="drawer-overlay" id="customizerDrawer">
+    <div class="drawer-card">
+      <h3>⚙️ Customize Everything</h3>
+      <p class="drawer-subtitle">Change names, question headlines, fee, theme, and photo in real time.</p>
+
+      <div class="drawer-section">
+        <label>Theme Style</label>
+        <div class="theme-swatches">
+          <div class="theme-chip selected" data-t="pink" style="background: #ffeef2; color: #c4185c;">🌸 Pink</div>
+          <div class="theme-chip" data-t="lavender" style="background: #f4f0ff; color: #6200ea;">💜 Lavender</div>
+          <div class="theme-chip" data-t="sunset" style="background: #fff4e6; color: #e65100;">🌅 Sunset</div>
+          <div class="theme-chip" data-t="midnight" style="background: #1a1226; color: #ff4081;">🌙 Dark</div>
+        </div>
+      </div>
+
+      <div class="drawer-section">
+        <label>Their Name (or Nickname)</label>
+        <input type="text" id="cfgDateName" class="drawer-input" placeholder="e.g. Sarah / Beautiful / Sweetheart">
+      </div>
+
+      <div class="drawer-section">
+        <label>Your Name</label>
+        <input type="text" id="cfgYourName" class="drawer-input" placeholder="e.g. Alex / Your Favorite Human">
+      </div>
+
+      <div class="drawer-section">
+        <label>Avatar / Photo (URL or Upload)</label>
+        <input type="text" id="cfgAvatarUrl" class="drawer-input" placeholder="Paste image link, or click below" style="margin-bottom: 6px;">
+        <input type="file" id="cfgAvatarFile" accept="image/*" style="font-size: 12px;">
+      </div>
+
+      <div class="drawer-section">
+        <label>Step 1 Question Title</label>
+        <input type="text" id="cfgHeadline" class="drawer-input" placeholder="Will you go on a date with me?">
+      </div>
+
+      <div class="drawer-section">
+        <label>Agreement Fee / Price</label>
+        <input type="text" id="cfgFee" class="drawer-input" placeholder="$499 or '3 warm hugs' or '1 coffee'">
+      </div>
+
+      <div class="drawer-section">
+        <label>Pick-up Message (Step 6)</label>
+        <input type="text" id="cfgPickup" class="drawer-input" placeholder="be ready by 6, I'm coming to get you 🚗">
+      </div>
+
+      <div class="drawer-section" style="background: #fff0f5; padding: 14px; border-radius: 16px; border: 1px dashed #f48fb1; margin-top: 14px;">
+        <label style="color: #b81755;">🔗 Your Unique Shareable Link</label>
+        <p style="font-size: 11.5px; color: #7d656e; margin-bottom: 8px;">Anyone opening this link will see your exact custom names, question, theme, and fee!</p>
+        <div style="display: flex; gap: 8px;">
+          <input type="text" id="shareUrlInput" class="drawer-input" readonly style="font-size: 12px; background: #fff; cursor: pointer;">
+          <button class="btn-primary" id="copyShareLinkBtn" style="padding: 8px 16px; font-size: 12px; border-radius: 12px; white-space: nowrap;">Copy Link 📋</button>
+        </div>
+        <span id="copyFeedback" style="display: none; font-size: 11px; color: #2e7d32; font-weight: 700; margin-top: 5px;">✓ Link copied to clipboard!</span>
+      </div>
+
+      <div style="display: flex; gap: 10px; margin-top: 22px;">
+        <button class="btn-primary" id="saveCustomizerBtn" style="flex: 1;">Save & Apply ✨</button>
+        <button class="btn-secondary" id="closeCustomizerBtn" style="margin: 0;">Cancel</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // Config State
+    const CONFIG = {
+      theme: 'pink',
+      dateName: '',
+      yourName: '',
+      avatar: 'pug.png',
+      headline: '🌸 Will you go on a date with me? 🌸',
+      fee: '$499',
+      pickup: "glad you didn't say no. be ready by 6, I'm coming to get you 🚗"
+    };
+
+    // 1. Read URL query parameters first (allows instant sharing across devices!)
+    const urlParams = new URLSearchParams(window.location.search);
+    if (urlParams.has('to')) CONFIG.dateName = urlParams.get('to');
+    if (urlParams.has('from')) CONFIG.yourName = urlParams.get('from');
+    if (urlParams.has('q')) CONFIG.headline = urlParams.get('q');
+    if (urlParams.has('fee')) CONFIG.fee = urlParams.get('fee');
+    if (urlParams.has('theme')) CONFIG.theme = urlParams.get('theme');
+    if (urlParams.has('pic')) CONFIG.avatar = urlParams.get('pic');
+    if (urlParams.has('msg')) CONFIG.pickup = urlParams.get('msg');
+
+    // 2. Load from localStorage fallback if no URL params
+    if (!urlParams.toString()) {
+      const saved = localStorage.getItem('proposal_cfg');
+      if (saved) {
+        try { Object.assign(CONFIG, JSON.parse(saved)); } catch (e) {}
+      }
+    }
+
+    // Function to generate unique shareable URL
+    function generateShareUrl() {
+      const u = new URL(window.location.origin + window.location.pathname);
+      if (CONFIG.dateName) u.searchParams.set('to', CONFIG.dateName);
+      if (CONFIG.yourName) u.searchParams.set('from', CONFIG.yourName);
+      if (CONFIG.headline && CONFIG.headline !== '🌸 Will you go on a date with me? 🌸') u.searchParams.set('q', CONFIG.headline);
+      if (CONFIG.fee && CONFIG.fee !== '$499') u.searchParams.set('fee', CONFIG.fee);
+      if (CONFIG.theme && CONFIG.theme !== 'pink') u.searchParams.set('theme', CONFIG.theme);
+      if (CONFIG.avatar && !CONFIG.avatar.startsWith('data:') && CONFIG.avatar !== 'pug.png') u.searchParams.set('pic', CONFIG.avatar);
+      if (CONFIG.pickup && !CONFIG.pickup.startsWith("glad you didn't say no")) u.searchParams.set('msg', CONFIG.pickup);
+
+      const fullUrl = u.toString();
+      const shareInput = document.getElementById('shareUrlInput');
+      if (shareInput) shareInput.value = fullUrl;
+      return fullUrl;
+    }
+
+    // State Variables
+    let currentStep = 1;
+    let selectedFood = 'Tacos';
+    let selectedActivity = 'Stargazing';
+    let selectedDate = '';
+    let selectedTime = '6:30 PM';
+    let musicPlaying = false;
+    let audioCtx = null;
+
+    // Elements
+    const body = document.body;
+    const noBtn = document.getElementById('noBtn');
+    const yesBtn = document.getElementById('yesBtn');
+    const mainCard = document.getElementById('mainCard');
+    const progressBar = document.getElementById('progressBar');
+    const payModal = document.getElementById('payModal');
+    const customizerDrawer = document.getElementById('customizerDrawer');
+
+    // Set default date to tomorrow
+    const tomorrow = new Date();
+    tomorrow.setDate(tomorrow.getDate() + 1);
+    const dateStr = tomorrow.toISOString().split('T')[0];
+    document.getElementById('datePicker').value = dateStr;
+    selectedDate = dateStr;
+
+    // Apply Config to DOM
+    function applyConfig() {
+      body.setAttribute('data-theme', CONFIG.theme);
+
+      // Theme chips
+      document.querySelectorAll('.theme-chip').forEach(c => {
+        c.classList.toggle('selected', c.dataset.t === CONFIG.theme);
+      });
+
+      // Avatar
+      if (CONFIG.avatar) {
+        document.getElementById('displayAvatar').src = CONFIG.avatar;
+      }
+
+      // Headlines
+      if (CONFIG.dateName) {
+        document.getElementById('headlineStep1').textContent = `🌸 ${CONFIG.dateName}, will you go on a date with me? 🌸`;
+      } else {
+        document.getElementById('headlineStep1').textContent = CONFIG.headline || '🌸 Will you go on a date with me? 🌸';
+      }
+
+      document.getElementById('billPriceDisplay').textContent = CONFIG.fee || '$499';
+      document.getElementById('recFee').textContent = CONFIG.fee || '$499';
+      document.getElementById('headlineStep6').textContent = CONFIG.pickup || "glad you didn't say no. be ready, I'm coming to pick you up!";
+
+      // Populate input values
+      document.getElementById('cfgDateName').value = CONFIG.dateName || '';
+      document.getElementById('cfgYourName').value = CONFIG.yourName || '';
+      document.getElementById('cfgHeadline').value = CONFIG.headline || '';
+      document.getElementById('cfgFee').value = CONFIG.fee || '$499';
+      document.getElementById('cfgPickup').value = CONFIG.pickup || '';
+      document.getElementById('cfgAvatarUrl').value = CONFIG.avatar.startsWith('data:') ? '' : CONFIG.avatar;
+    }
+
+    applyConfig();
+
+    // Progress Bar Updater
+    function updateProgress(step) {
+      const pct = Math.round((step / 7) * 100);
+      progressBar.style.width = pct + '%';
+    }
+
+    // Step Switching
+    function showStep(stepNum) {
+      currentStep = stepNum;
+      updateProgress(stepNum);
+
+      document.querySelectorAll('.step-view').forEach(v => v.classList.remove('active'));
+      const target = document.getElementById(`step${stepNum}`);
+      if (target) {
+        target.classList.add('active');
+      }
+
+      if (stepNum === 1) {
+        placeNoButtonInitial();
+        noBtn.style.display = 'block';
+      } else {
+        noBtn.style.display = 'none';
+      }
+    }
+
+    // Runaway NO Button Logic
+    function placeNoButtonInitial() {
+      const yesRect = yesBtn.getBoundingClientRect();
+      noBtn.style.top = yesRect.top + 'px';
+      noBtn.style.left = Math.min(window.innerWidth - 120, yesRect.right + 25) + 'px';
+      noBtn.style.display = 'block';
+    }
+
+    function moveNoButton() {
+      const padding = 24;
+      const btnW = noBtn.offsetWidth || 80;
+      const btnH = noBtn.offsetHeight || 40;
+
+      const maxX = window.innerWidth - btnW - padding;
+      const maxY = window.innerHeight - btnH - padding;
+
+      const randomX = Math.max(padding, Math.floor(Math.random() * maxX));
+      const randomY = Math.max(padding, Math.floor(Math.random() * maxY));
+
+      noBtn.style.left = `${randomX}px`;
+      noBtn.style.top = `${randomY}px`;
+      const rot = Math.floor(Math.random() * 30 - 15);
+      const scale = 0.85 + Math.random() * 0.35;
+      noBtn.style.transform = `scale(${scale}) rotate(${rot}deg)`;
+
+      // Playful responses on button text
+      const phrases = ["no 🐾", "are you sure? 🥺", "try again! 🏃", "oops too slow! 💨", "click YES instead 💕", "you can't catch me! 😜", "still no? 🤔"];
+      noBtn.textContent = phrases[Math.floor(Math.random() * phrases.length)];
+    }
+
+    noBtn.addEventListener('mouseenter', moveNoButton);
+    noBtn.addEventListener('touchstart', (e) => {
+      e.preventDefault();
+      moveNoButton();
+    });
+    noBtn.addEventListener('click', (e) => {
+      e.preventDefault();
+      moveNoButton();
+    });
+
+    window.addEventListener('load', () => setTimeout(placeNoButtonInitial, 150));
+    window.addEventListener('resize', () => {
+      if (currentStep === 1) placeNoButtonInitial();
+    });
+
+    // Confetti Burst Helper
+    function fireConfetti(big = false) {
+      if (typeof confetti !== 'function') return;
+      if (!big) {
+        confetti({
+          particleCount: 50,
+          spread: 60,
+          origin: { y: 0.65 },
+          colors: ['#e33b8a', '#ff65a3', '#ffc6ff', '#ffd166', '#72efdd']
+        });
+      } else {
+        const count = 200;
+        const defaults = { origin: { y: 0.7 } };
+        function fire(particleRatio, opts) {
+          confetti(Object.assign({}, defaults, opts, {
+            particleCount: Math.floor(count * particleRatio)
+          }));
+        }
+        fire(0.25, { spread: 26, startVelocity: 55 });
+        fire(0.2, { spread: 60 });
+        fire(0.35, { spread: 100, decay: 0.91, scalar: 0.8 });
+        fire(0.1, { spread: 120, startVelocity: 25, decay: 0.92, scalar: 1.2 });
+        fire(0.1, { spread: 120, startVelocity: 45 });
+      }
+    }
+
+    // Step Interactions
+    yesBtn.addEventListener('click', () => {
+      fireConfetti(true);
+      showStep(2);
+    });
+
+    document.getElementById('step2Btn').addEventListener('click', () => showStep(3));
+
+    document.getElementById('step3Btn').addEventListener('click', () => {
+      selectedDate = document.getElementById('datePicker').value;
+      selectedTime = document.getElementById('timePicker').value;
+      showStep(4);
+    });
+
+    // Food selection (Step 4)
+    document.querySelectorAll('#foodGrid .grid-item').forEach(card => {
+      card.addEventListener('click', () => {
+        document.querySelectorAll('#foodGrid .grid-item').forEach(c => c.classList.remove('selected'));
+        card.classList.add('selected');
+        selectedFood = card.dataset.val;
+      });
+    });
+    document.getElementById('step4Btn').addEventListener('click', () => showStep(5));
+
+    // Activity selection (Step 5)
+    document.querySelectorAll('#activityGrid .grid-item').forEach(card => {
+      card.addEventListener('click', () => {
+        document.querySelectorAll('#activityGrid .grid-item').forEach(c => c.classList.remove('selected'));
+        card.classList.add('selected');
+        selectedActivity = card.dataset.val;
+      });
+    });
+    document.getElementById('step5Btn').addEventListener('click', () => showStep(6));
+
+    // Confirmation (Step 6)
+    document.getElementById('step6Btn').addEventListener('click', () => showStep(7));
+
+    // Go back button (Step 7)
+    document.getElementById('goBackBtn').addEventListener('click', () => showStep(6));
+
+    // Final Pay Button (Step 7)
+    document.getElementById('payBtn').addEventListener('click', () => {
+      fireConfetti(true);
+
+      // Populate Receipt Modal
+      document.getElementById('recDate').textContent = selectedDate || 'Tomorrow';
+      document.getElementById('recTime').textContent = selectedTime || '6:30 PM';
+      document.getElementById('recFood').textContent = selectedFood || 'Tacos';
+      document.getElementById('recActivity').textContent = selectedActivity || 'Stargazing';
+      document.getElementById('recFee').textContent = CONFIG.fee || '$499';
+
+      payModal.classList.add('active');
+    });
+
+    function closeModal() {
+      payModal.classList.remove('active');
+    }
+
+    // Ambient floating canvas hearts & stars
+    const canvas = document.getElementById('ambientCanvas');
+    const ctx = canvas.getContext('2d');
+    let particles = [];
+
+    function resizeCanvas() {
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
+    }
+    window.addEventListener('resize', resizeCanvas);
+    resizeCanvas();
+
+    class Particle {
+      constructor() {
+        this.reset();
+      }
+      reset() {
+        this.x = Math.random() * canvas.width;
+        this.y = canvas.height + Math.random() * 50;
+        this.size = Math.random() * 14 + 10;
+        this.speedY = Math.random() * 0.8 + 0.4;
+        this.speedX = Math.random() * 0.4 - 0.2;
+        this.opacity = Math.random() * 0.5 + 0.2;
+        this.symbol = ['💖', '🌸', '✨', '💕', '🍓', '💌'][Math.floor(Math.random() * 6)];
+      }
+      update() {
+        this.y -= this.speedY;
+        this.x += this.speedX;
+        if (this.y < -30) this.reset();
+      }
+      draw() {
+        ctx.globalAlpha = this.opacity;
+        ctx.font = `${this.size}px serif`;
+        ctx.fillText(this.symbol, this.x, this.y);
+      }
+    }
+
+    for (let i = 0; i < 22; i++) {
+      particles.push(new Particle());
+    }
+
+    function animateParticles() {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      particles.forEach(p => {
+        p.update();
+        p.draw();
+      });
+      requestAnimationFrame(animateParticles);
+    }
+    animateParticles();
+
+    // Synthesized Melodic Romantic Chimes (Web Audio API - No external file needed!)
+    function playRomanticChime() {
+      try {
+        if (!audioCtx) {
+          audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        }
+        if (audioCtx.state === 'suspended') {
+          audioCtx.resume();
+        }
+
+        // Calming pentatonic melody sequence
+        const notes = [523.25, 659.25, 783.99, 1046.50, 987.77, 783.99, 659.25, 523.25];
+        let time = audioCtx.currentTime;
+
+        notes.forEach((freq, idx) => {
+          const osc = audioCtx.createOscillator();
+          const gain = audioCtx.createGain();
+
+          osc.type = 'sine';
+          osc.frequency.setValueAtTime(freq, time + idx * 0.28);
+
+          gain.gain.setValueAtTime(0.001, time + idx * 0.28);
+          gain.gain.exponentialRampToValueAtTime(0.12, time + idx * 0.28 + 0.05);
+          gain.gain.exponentialRampToValueAtTime(0.0001, time + idx * 0.28 + 0.9);
+
+          osc.connect(gain);
+          gain.connect(audioCtx.destination);
+
+          osc.start(time + idx * 0.28);
+          osc.stop(time + idx * 0.28 + 0.95);
+        });
+      } catch (err) {
+        console.warn('Audio not available', err);
+      }
+    }
+
+    // Top Controls
+    const musicBtn = document.getElementById('musicToggleBtn');
+    let musicInterval = null;
+
+    musicBtn.addEventListener('click', () => {
+      if (!musicPlaying) {
+        musicPlaying = true;
+        musicBtn.classList.add('active');
+        playRomanticChime();
+        musicInterval = setInterval(playRomanticChime, 4500);
+      } else {
+        musicPlaying = false;
+        musicBtn.classList.remove('active');
+        clearInterval(musicInterval);
+      }
+    });
+
+    // Theme Cycler
+    const themes = ['pink', 'lavender', 'sunset', 'midnight'];
+    document.getElementById('themeCycleBtn').addEventListener('click', () => {
+      const currIdx = themes.indexOf(CONFIG.theme);
+      const nextTheme = themes[(currIdx + 1) % themes.length];
+      CONFIG.theme = nextTheme;
+      localStorage.setItem('proposal_cfg', JSON.stringify(CONFIG));
+      applyConfig();
+    });
+
+    // Customizer Drawer Handling
+    const drawer = document.getElementById('customizerDrawer');
+    function openDrawer() {
+      drawer.classList.add('active');
+    }
+    function closeDrawer() {
+      drawer.classList.remove('active');
+    }
+
+    document.getElementById('openCustomizerBtn').addEventListener('click', openDrawer);
+    document.getElementById('editLink').addEventListener('click', openDrawer);
+    document.getElementById('avatarClickable').addEventListener('click', openDrawer);
+    document.getElementById('closeCustomizerBtn').addEventListener('click', closeDrawer);
+
+    // Theme Swatch Selector in Drawer
+    document.querySelectorAll('.theme-chip').forEach(chip => {
+      chip.addEventListener('click', () => {
+        document.querySelectorAll('.theme-chip').forEach(c => c.classList.remove('selected'));
+        chip.classList.add('selected');
+        CONFIG.theme = chip.dataset.t;
+      });
+    });
+
+    // Avatar File Upload Handling
+    document.getElementById('cfgAvatarFile').addEventListener('change', (e) => {
+      const file = e.target.files[0];
+      if (file) {
+        const reader = new FileReader();
+        reader.onload = (event) => {
+          CONFIG.avatar = event.target.result;
+          document.getElementById('displayAvatar').src = CONFIG.avatar;
+        };
+        reader.readAsDataURL(file);
+      }
+    });
+
+    // Save Customizer
+    document.getElementById('saveCustomizerBtn').addEventListener('click', () => {
+      CONFIG.dateName = document.getElementById('cfgDateName').value.trim();
+      CONFIG.yourName = document.getElementById('cfgYourName').value.trim();
+      CONFIG.headline = document.getElementById('cfgHeadline').value.trim();
+      CONFIG.fee = document.getElementById('cfgFee').value.trim() || '$499';
+      CONFIG.pickup = document.getElementById('cfgPickup').value.trim();
+
+      const urlInput = document.getElementById('cfgAvatarUrl').value.trim();
+      if (urlInput) {
+        CONFIG.avatar = urlInput;
+      }
+
+      localStorage.setItem('proposal_cfg', JSON.stringify(CONFIG));
+      applyConfig();
+      generateShareUrl();
+      closeDrawer();
+      fireConfetti(false);
+    });
+
+    // Copy Shareable Link Action
+    const copyBtn = document.getElementById('copyShareLinkBtn');
+    if (copyBtn) {
+      copyBtn.addEventListener('click', () => {
+        const urlToCopy = generateShareUrl();
+        navigator.clipboard.writeText(urlToCopy).then(() => {
+          const feedback = document.getElementById('copyFeedback');
+          if (feedback) {
+            feedback.style.display = 'block';
+            setTimeout(() => { feedback.style.display = 'none'; }, 2500);
+          }
+        }).catch(err => {
+          // Fallback
+          const shareInput = document.getElementById('shareUrlInput');
+          if (shareInput) {
+            shareInput.select();
+            document.execCommand('copy');
+            const feedback = document.getElementById('copyFeedback');
+            if (feedback) {
+              feedback.style.display = 'block';
+              setTimeout(() => { feedback.style.display = 'none'; }, 2500);
+            }
+          }
+        });
+      });
+    }
+
+    // Auto-select on click
+    const shareInput = document.getElementById('shareUrlInput');
+    if (shareInput) {
+      shareInput.addEventListener('click', () => shareInput.select());
+    }
+
+    // Generate link initially
+    generateShareUrl();
+  </script>
+</body>
+</html>
